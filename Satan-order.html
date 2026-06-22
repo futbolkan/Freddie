@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Satan's Order MC — Los Santos Chapter</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;700&family=Special+Elite&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blood:#CC2200;
+  --blood-dark:#8b1500;
+  --bone:#F0E8D8;
+  --asphalt:#0A0A0A;
+  --concrete:#111;
+  --steel:#1A1A1A;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  background:var(--asphalt);
+  color:#c8c8c8;
+  font-family:'Oswald',sans-serif;
+  overflow-x:hidden;
+  cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23CC2200" d="M12 2 L14 8 L20 8 L15 12 L17 18 L12 14 L7 18 L9 12 L4 8 L10 8 Z"/></svg>') 12 12, auto;
+}
+
+/* === ANIMATED BACKGROUND === */
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none}
+
+/* === GRAIN === */
+.grain{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9998;pointer-events:none;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* === VIGNETTE === */
+.vignette{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9997;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.8) 100%)}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--asphalt)}
+::-webkit-scrollbar-thumb{background:var(--blood)}
+
+/* === PRELOADER === */
+.preloader{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:var(--asphalt);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:all 1s ease}
+.preloader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.preloader-icon{animation:iconPulse 2s ease-in-out infinite}
+.preloader-icon svg{width:60px;height:60px}
+.preloader-text{font-family:'Special Elite',monospace;font-size:12px;color:var(--blood);margin-top:20px;letter-spacing:6px;text-transform:uppercase;animation:flicker 2s ease-in-out infinite}
+@keyframes iconPulse{0%,100%{transform:scale(1);opacity:0.7}50%{transform:scale(1.1);opacity:1}}
+@keyframes flicker{0%,100%{opacity:1}50%{opacity:0.2}}
+
+.main{position:relative;z-index:2;max-width:680px;margin:20px auto;background:var(--asphalt);border-radius:10px;overflow:hidden;box-shadow:0 0 80px rgba(0,0,0,0.8)}
+
+/* === BROWSER CHROME === */
+.browser-top{background:var(--steel);padding:10px 14px 0}
+.browser-dots{display:flex;gap:5px;margin-bottom:8px}
+.browser-dot{width:11px;height:11px;border-radius:50%}
+.browser-dot.red{background:#FF5F57}
+.browser-dot.yellow{background:#FFBD2E}
+.browser-dot.green{background:#28C840}
+.browser-tabs{display:flex;gap:2px;margin-left:6px}
+.browser-tab{font-size:10px;padding:5px 12px;border-radius:5px 5px 0 0;color:#555;background:var(--steel);display:flex;align-items:center;gap:5px}
+.browser-tab.active{background:var(--asphalt);color:var(--blood);font-weight:700}
+.browser-tab svg{width:12px;height:12px}
+.browser-bar{background:var(--steel);padding:7px 12px;display:flex;align-items:center;gap:8px}
+.browser-bar .nav-btn{color:#555;font-size:12px}
+.browser-bar .url-bar{background:var(--concrete);flex:1;border-radius:3px;padding:5px 10px;display:flex;align-items:center;gap:6px;border:1px solid var(--steel);font-family:'Courier New',monospace;font-size:11px;color:#666}
+.browser-bar .url-bar .lock svg{width:10px;height:10px}
+.browser-bar .url-bar .https{color:var(--blood);font-weight:700}
+
+/* === NAV === */
+.nav{background:var(--asphalt);border-bottom:2px solid var(--blood);padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
+.nav::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(204,34,0,0.1),transparent);animation:navSweep 4s ease-in-out infinite}
+@keyframes navSweep{0%{left:-100%}100%{left:100%}}
+.nav-left{display:flex;align-items:center;gap:12px}
+.nav-logo{width:36px;height:36px;border:2px solid var(--blood);border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(204,34,0,0.08);animation:logoPulse 3s ease-in-out infinite}
+.nav-logo svg{width:20px;height:20px}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 0 0 rgba(204,34,0,0.4)}50%{box-shadow:0 0 20px 5px rgba(204,34,0,0.2)}}
+.nav-title{font-size:13px;color:var(--bone);letter-spacing:2px;text-transform:uppercase;font-family:Georgia,serif}
+.nav-sub{font-size:8px;color:var(--blood);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.nav-links{display:flex;gap:20px}
+.nav-links a{font-size:9px;color:#555;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:color 0.3s ease;position:relative}
+.nav-links a:hover{color:var(--blood)}
+.nav-links a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;background:var(--blood);transition:width 0.3s ease}
+.nav-links a:hover::after{width:100%}
+.nav-cta{background:var(--blood);color:#fff;font-size:9px;font-weight:700;letter-spacing:2px;padding:7px 16px;border-radius:2px;text-transform:uppercase;transition:all 0.3s ease;cursor:pointer;border:none}
+.nav-cta:hover{background:#ff2a00;transform:translateY(-2px);box-shadow:0 5px 20px rgba(204,34,0,0.4)}
+
+/* === HERO === */
+.hero{width:100%;height:340px;background-image:url('https://i.ibb.co/0y0JZGR7/photo-1633380010618-80a758702d71-q-80-w-687-auto-format-fit-crop-ixlib-rb-4-1.jpg');background-size:cover;background-position:center 40%;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(to top,rgba(10,10,10,0.98) 0%,rgba(10,10,10,0.5) 60%,transparent 100%)}
+.hero-content{position:absolute;bottom:0;left:0;right:0;padding:32px 32px 28px;z-index:2}
+.hero-label{font-size:9px;color:var(--blood);letter-spacing:4px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;opacity:0;animation:fadeUp 1s ease 0.3s forwards}
+.hero-label .line{width:28px;height:1px;background:var(--blood);animation:lineGrow 1s ease 0.5s forwards}
+@keyframes lineGrow{from{width:0}to{width:28px}}
+.hero-title{font-size:42px;color:var(--bone);line-height:1;font-weight:700;font-family:Georgia,serif;margin-bottom:10px;opacity:0;animation:fadeUp 1s ease 0.6s forwards}
+.hero-title .red{color:var(--blood);animation:textGlow 3s ease-in-out infinite}
+@keyframes textGlow{0%,100%{text-shadow:0 0 10px rgba(204,34,0,0.3)}50%{text-shadow:0 0 30px rgba(204,34,0,0.6)}}
+.hero-quote{font-size:12px;color:#777;line-height:1.7;max-width:440px;font-style:italic;opacity:0;animation:fadeUp 1s ease 0.9s forwards}
+.hero-buttons{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;opacity:0;animation:fadeUp 1s ease 1.2s forwards}
+.btn-primary{background:var(--blood);color:#fff;font-size:9px;font-weight:700;letter-spacing:2.5px;padding:10px 22px;border-radius:2px;text-transform:uppercase;transition:all 0.3s ease;cursor:pointer;border:none;position:relative;overflow:hidden;display:flex;align-items:center;gap:8px}
+.btn-primary svg{width:14px;height:14px;animation:bikeMove 2s ease-in-out infinite}
+@keyframes bikeMove{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
+.btn-primary::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:left 0.5s ease}
+.btn-primary:hover::before{left:100%}
+.btn-primary:hover{background:#ff2a00;transform:translateY(-2px);box-shadow:0 5px 20px rgba(204,34,0,0.4)}
+.btn-secondary{border:1px solid #333;color:#666;font-size:9px;letter-spacing:2px;padding:9px 20px;border-radius:2px;text-transform:uppercase;transition:all 0.3s ease;cursor:pointer;background:transparent}
+.btn-secondary:hover{border-color:var(--blood);color:var(--blood)}
+
+/* === STATS === */
+.stats{background:var(--asphalt);border-bottom:1px solid var(--steel);padding:16px 28px;display:flex;align-items:center;justify-content:space-around}
+.stat{text-align:center;opacity:0;transform:translateY(20px);transition:all 0.6s ease}
+.stat.visible{opacity:1;transform:translateY(0)}
+.stat-num{font-size:24px;color:var(--blood);font-weight:700;font-family:Georgia,serif;animation:countPulse 2s ease-in-out infinite}
+@keyframes countPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.stat-label{font-size:7px;color:#444;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.stat-divider{width:1px;height:32px;background:var(--steel)}
+
+/* === ABOUT === */
+.about{display:flex}
+.about-img{width:240px;flex-shrink:0;height:280px;background-image:url('https://i.ibb.co/ZRswrWpv/photo-1634818013962-fff92d6ad0e9-q-80-w-1170-auto-format-fit-crop-ixlib-rb-4-1.jpg');background-size:cover;background-position:center;border-right:2px solid var(--blood);position:relative;overflow:hidden}
+.about-img::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,transparent 70%,rgba(204,34,0,0.2) 100%);animation:imgPulse 4s ease-in-out infinite}
+@keyframes imgPulse{0%,100%{opacity:0.5}50%{opacity:1}}
+.about-content{flex:1;padding:28px 24px;background:var(--concrete)}
+.about-label{font-size:8px;color:var(--blood);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.about-title{font-size:20px;color:var(--bone);font-weight:700;font-family:Georgia,serif;line-height:1.3;margin-bottom:14px}
+.about-text{font-size:12px;color:#666;line-height:1.85;font-style:italic}
+.about-text .red{color:var(--blood);font-weight:700}
+.about-divider{width:36px;height:2px;background:var(--blood);margin:14px 0}
+.about-points{display:flex;flex-direction:column;gap:8px}
+.about-point{display:flex;align-items:center;gap:10px}
+.about-point .dot{width:6px;height:6px;background:var(--blood);border-radius:50%;animation:dotPulse 2s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.about-point span{font-size:10px;color:#555;letter-spacing:1px;text-transform:uppercase}
+
+/* === RIDES === */
+.rides{background:var(--asphalt);padding:28px 24px;border-top:1px solid var(--steel)}
+.rides-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.rides-label{font-size:8px;color:var(--blood);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+.rides-title{font-size:20px;color:var(--bone);font-weight:700;font-family:Georgia,serif}
+.rides-bg{font-size:52px;color:rgba(204,34,0,0.08);font-weight:700;line-height:1}
+.rides-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ride-card{background:var(--concrete);border:1px solid var(--steel);border-top:2px solid var(--blood);border-radius:3px;padding:16px;transition:all 0.4s ease;opacity:0;transform:translateY(20px)}
+.ride-card.visible{opacity:1;transform:translateY(0)}
+.ride-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,0.5);border-top-color:#ff2a00}
+.ride-icon{margin-bottom:10px;display:block;transition:transform 0.3s ease}
+.ride-icon svg{width:32px;height:32px}
+.ride-card:hover .ride-icon{transform:scale(1.2) rotate(-5deg)}
+.ride-name{font-size:12px;color:var(--blood);font-weight:700;margin-bottom:5px}
+.ride-desc{font-size:10px;color:#444;line-height:1.6}
+
+/* === RULES === */
+.rules{background:var(--asphalt);padding:28px 24px;border-top:2px solid var(--blood)}
+.rules-label{font-size:8px;color:var(--blood);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.rules-title{font-size:20px;color:var(--bone);font-weight:700;font-family:Georgia,serif;margin-bottom:20px}
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rule-card{background:var(--concrete);border:1px solid var(--steel);border-left:2px solid var(--blood);border-radius:2px;padding:14px 16px;transition:all 0.4s ease;opacity:0;transform:translateX(-20px)}
+.rule-card.visible{opacity:1;transform:translateX(0)}
+.rule-card:hover{border-left-color:#ff2a00;background:#151515}
+.rule-num{font-size:9px;color:var(--blood);font-family:'Courier New',monospace;letter-spacing:2px;margin-bottom:6px}
+.rule-name{font-size:12px;color:var(--bone);font-weight:700;margin-bottom:5px}
+.rule-desc{font-size:10px;color:#444;line-height:1.6}
+
+/* === MOTTO === */
+.motto{width:100%;height:180px;background-image:url('https://i.ibb.co/93wmbDCW/photo-1700598218815-e0c385ed3cec-q-80-w-1170-auto-format-fit-crop-ixlib-rb-4-1.jpg');background-size:cover;background-position:center 60%;position:relative;overflow:hidden}
+.motto::before{content:'';position:absolute;inset:0;background:rgba(10,10,10,0.72)}
+.motto-content{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:2}
+.motto-label{font-size:8px;color:var(--blood);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.motto-label svg{width:16px;height:16px;animation:fireFlicker 1.5s ease-in-out infinite}
+@keyframes fireFlicker{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.2);opacity:1}}
+.motto-text{font-size:22px;color:var(--bone);font-family:Georgia,serif;font-style:italic;font-weight:700;text-align:center}
+.motto-text .red{color:var(--blood)}
+
+/* === RANKS === */
+.ranks{background:var(--concrete);padding:28px 24px;border-top:1px solid var(--steel)}
+.ranks-label{font-size:8px;color:var(--blood);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.ranks-title{font-size:20px;color:var(--bone);font-weight:700;font-family:Georgia,serif;margin-bottom:20px}
+.ranks-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.rank-card{background:var(--asphalt);border:1px solid var(--steel);border-radius:3px;padding:16px;text-align:center;transition:all 0.4s ease;opacity:0;transform:scale(0.9)}
+.rank-card.visible{opacity:1;transform:scale(1)}
+.rank-card:hover{border-color:var(--blood);transform:scale(1.02)}
+.rank-num{font-size:9px;color:var(--blood);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-family:'Courier New',monospace}
+.rank-name{font-size:14px;color:var(--bone);font-weight:700;font-family:Georgia,serif;margin-bottom:8px}
+.rank-divider{height:1px;background:var(--steel);margin-bottom:10px}
+.rank-desc{font-size:10px;color:#444;line-height:1.6}
+
+/* === CONTACT === */
+.contact{background:var(--asphalt);padding:28px 24px;border-top:2px solid var(--blood)}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.contact-info-label{font-size:8px;color:var(--blood);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.contact-info-title{font-size:18px;color:var(--bone);font-weight:700;font-family:Georgia,serif;margin-bottom:16px}
+.contact-item{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start}
+.contact-icon{width:26px;height:26px;background:var(--concrete);border:1px solid var(--steel);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.contact-icon svg{width:14px;height:14px}
+.contact-item-label{font-size:7px;color:var(--blood);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.contact-item-value{font-size:10px;color:#555;line-height:1.5}
+.contact-form-label{font-size:7px;letter-spacing:2px;color:#444;text-transform:uppercase;margin-bottom:4px}
+.contact-form-input{width:100%;background:var(--concrete);border:1px solid var(--steel);border-radius:2px;padding:8px 10px;font-size:11px;color:#444;margin-bottom:10px;font-family:'Oswald',sans-serif;transition:border-color 0.3s ease}
+.contact-form-input:focus{outline:none;border-color:var(--blood)}
+.contact-form-textarea{min-height:54px;resize:vertical}
+.contact-submit{background:var(--blood);color:#fff;font-size:9px;font-weight:700;letter-spacing:2px;padding:10px 24px;border-radius:2px;text-transform:uppercase;display:inline-block;transition:all 0.3s ease;cursor:pointer;border:none}
+.contact-submit:hover{background:#ff2a00;transform:translateY(-2px);box-shadow:0 5px 20px rgba(204,34,0,0.4)}
+
+/* === FOOTER === */
+.footer{background:#050505;border-top:2px solid var(--blood);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.footer-logo{font-size:13px;color:var(--blood);font-weight:700;font-family:Georgia,serif;display:flex;align-items:center;gap:8px}
+.footer-logo svg{width:16px;height:16px;animation:fireFlicker 1.5s ease-in-out infinite}
+.footer-copy{font-size:8px;color:#2A2A2A;font-family:'Courier New',monospace}
+.footer-rights{font-size:8px;color:#333;letter-spacing:2px;text-transform:uppercase}
+
+/* === ANIMATIONS === */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* === RESPONSIVE === */
+@media(max-width:768px){
+  .about{flex-direction:column}
+  .about-img{width:100%;height:200px;border-right:none;border-bottom:2px solid var(--blood)}
+  .rides-grid,.rules-grid,.ranks-grid,.contact-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div class="preloader" id="preloader">
+  <div class="preloader-icon">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" style="stop-color:#CC2200"/>
+          <stop offset="100%" style="stop-color:#ff6600"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#fireGrad)" d="M50 10 Q60 30 55 45 Q65 35 60 55 Q70 45 65 65 Q60 80 50 90 Q40 80 35 65 Q30 45 40 55 Q35 35 45 45 Q40 30 50 10"/>
+    </svg>
+  </div>
+  <div class="preloader-text">Satan's Order MC</div>
+</div>
+
+<!-- ANIMATED BACKGROUND -->
+<canvas id="bgCanvas"></canvas>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- BROWSER CHROME -->
+  <div class="browser-top">
+    <div class="browser-dots">
+      <div class="browser-dot red"></div>
+      <div class="browser-dot yellow"></div>
+      <div class="browser-dot green"></div>
+    </div>
+    <div class="browser-tabs">
+      <div class="browser-tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        New Tab
+      </div>
+      <div class="browser-tab active">
+        <svg viewBox="0 0 100 100"><path fill="#CC2200" d="M50 10 Q60 30 55 45 Q65 35 60 55 Q70 45 65 65 Q60 80 50 90 Q40 80 35 65 Q30 45 40 55 Q35 35 45 45 Q40 30 50 10"/></svg>
+        Satan's Order MC
+      </div>
+    </div>
+  </div>
+  <div class="browser-bar">
+    <div class="nav-btn">←</div>
+    <div class="nav-btn">→</div>
+    <div class="nav-btn">↻</div>
+    <div class="url-bar">
+      <div class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="#CC2200" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <div><span class="https">https://</span>www.satans-order-mc.com</div>
+      <div style="color:#333;font-size:11px">☆</div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#CC2200" d="M50 10 Q60 30 55 45 Q65 35 60 55 Q70 45 65 65 Q60 80 50 90 Q40 80 35 65 Q30 45 40 55 Q35 35 45 45 Q40 30 50 10"/>
+        </svg>
+      </div>
+      <div>
+        <div class="nav-title">Satan's Order MC</div>
+        <div class="nav-sub">Los Santos Chapter · Est. 1%</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#rides">Rides</a>
+      <a href="#rules">Members</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <button class="nav-cta">Prospect Now</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-label">
+        <div class="line"></div>
+        Los Santos Chapter · Est. 2024
+      </div>
+      <h1 class="hero-title">Ride hard.<br><span class="red">Die free.</span></h1>
+      <p class="hero-quote">"We are not a gang. We are a brotherhood — bound by iron, loyalty, and the open road. Satan's Order MC."</p>
+      <div class="hero-buttons">
+        <button class="btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M5 15l4-8h6l4 8M9 7l3-4h3l3 4"/></svg>
+          Join the Brotherhood
+        </button>
+        <button class="btn-secondary">Our Story →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat" data-anim>
+      <div class="stat-num">1%</div>
+      <div class="stat-label">Outlaw Spirit</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat" data-anim>
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">Brotherhood</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat" data-anim>
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Open Road</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat" data-anim>
+      <div class="stat-num">1</div>
+      <div class="stat-label">Chapter · LS</div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-img"></div>
+    <div class="about-content">
+      <div class="about-label">Who We Are</div>
+      <h2 class="about-title">Not just a club.<br>A way of life.</h2>
+      <p class="about-text">
+        <span class="red">Satan's Order MC</span> was forged in the streets of Los Santos by riders who refused to follow the rules of ordinary life. We live by our own code — iron and fire, loyalty above all, the road as our church.<br><br>
+        If you bleed gasoline and breathe freedom, you already know who you are. The question is: are you ready to ride with us?
+      </p>
+      <div class="about-divider"></div>
+      <div class="about-points">
+        <div class="about-point">
+          <div class="dot"></div>
+          <span>Loyalty · Brotherhood · Road</span>
+        </div>
+        <div class="about-point">
+          <div class="dot"></div>
+          <span>No compromise · No surrender</span>
+        </div>
+        <div class="about-point">
+          <div class="dot"></div>
+          <span>Est. Los Santos · Riding Since 2024</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIDES -->
+  <section class="rides" id="rides">
+    <div class="rides-header">
+      <div>
+        <div class="rides-label">What We Ride</div>
+        <h2 class="rides-title">Our Iron Horses</h2>
+      </div>
+      <div class="rides-bg">V8</div>
+    </div>
+    <div class="rides-grid">
+      <div class="ride-card" data-anim>
+        <span class="ride-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#CC2200" stroke-width="2">
+            <circle cx="5" cy="18" r="3"/>
+            <circle cx="19" cy="18" r="3"/>
+            <path d="M5 15l4-8h6l4 8M9 7l3-4h3l3 4"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </span>
+        <div class="ride-name">Choppers</div>
+        <div class="ride-desc">Custom built, long fork, stripped down. Pure American iron.</div>
+      </div>
+      <div class="ride-card" data-anim>
+        <span class="ride-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#CC2200" stroke-width="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </span>
+        <div class="ride-name">Cruisers</div>
+        <div class="ride-desc">V-twin thunder, highway dominance, old school attitude.</div>
+      </div>
+      <div class="ride-card" data-anim>
+        <span class="ride-icon">
+          <svg viewBox="0 0 100 100">
+            <path fill="#CC2200" d="M50 10 Q60 30 55 45 Q65 35 60 55 Q70 45 65 65 Q60 80 50 90 Q40 80 35 65 Q30 45 40 55 Q35 35 45 45 Q40 30 50 10"/>
+          </svg>
+        </span>
+        <div class="ride-name">Customs</div>
+        <div class="ride-desc">No two alike. Built by hand. Ridden with soul.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section class="rules" id="rules">
+    <div class="rules-label">The Code</div>
+    <h2 class="rules-title">Club Rules & Honor</h2>
+    <div class="rules-grid">
+      <div class="rule-card" data-anim>
+        <div class="rule-num">§ 01</div>
+        <div class="rule-name">Brotherhood First</div>
+        <div class="rule-desc">Your brothers come before everything. No exceptions, no excuses.</div>
+      </div>
+      <div class="rule-card" data-anim>
+        <div class="rule-num">§ 02</div>
+        <div class="rule-name">Ride or Die</div>
+        <div class="rule-desc">Show up to every ride. Your presence is your loyalty made visible.</div>
+      </div>
+      <div class="rule-card" data-anim>
+        <div class="rule-num">§ 03</div>
+        <div class="rule-name">What Happens Here...</div>
+        <div class="rule-desc">Club business stays within the club. Always. No exceptions.</div>
+      </div>
+      <div class="rule-card" data-anim>
+        <div class="rule-num">§ 04</div>
+        <div class="rule-name">Respect the Colors</div>
+        <div class="rule-desc">The patch is earned, not given. Wear it with pride and protect it with your life.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTTO -->
+  <section class="motto">
+    <div class="motto-content">
+      <div class="motto-label">
+        <svg viewBox="0 0 100 100"><path fill="#CC2200" d="M50 10 Q60 30 55 45 Q65 35 60 55 Q70 45 65 65 Q60 80 50 90 Q40 80 35 65 Q30 45 40 55 Q35 35 45 45 Q40 30 50 10"/></svg>
+        Club Motto
+        <svg viewBox="0 0 100 100"><path fill="#CC2200" d="M50 10 Q60 30 55 45 Q65 35 60 55 Q70 45 65 65 Q60 80 50 90 Q40 80 35 65 Q30 45 40 55 Q35 35 45 45 Q40 30 50 10"/></svg>
+      </div>
+      <div class="motto-text">"Born to ride. <span class="red">Bound by fire.</span>"</div>
+    </div>
+  </section>
+
+  <!-- RANKS -->
+  <section class="ranks">
+    <div class="ranks-label">Club Hierarchy</div>
+    <h2 class="ranks-title">Ranks & Membership</h2>
+    <div class="ranks-grid">
+      <div class="rank-card" data-anim>
+        <div class="rank-num">Rank · 01</div>
+        <div class="rank-name">Prospect</div>
+        <div class="rank-divider"></div>
+        <div class="rank-desc">Earning your colors. Prove your loyalty before the patch is yours.</div>
+      </div>
+      <div class="rank-card" data-anim>
+        <div class="rank-num">Rank · 02</div>
+        <div class="rank-name">Full Member</div>
+        <div class="rank-divider"></div>
+        <div class="rank-desc">Patched in. A full brother of Satan's Order MC for life.</div>
+      </div>
+      <div class="rank-card" data-anim>
+        <div class="rank-num">Rank · 03</div>
+        <div class="rank-name">Officer</div>
+        <div class="rank-divider"></div>
+        <div class="rank-desc">President, VP, Sergeant-at-Arms. Elected by the brotherhood.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="contact-grid">
+      <div>
+        <div class="contact-info-label">Get In Touch</div>
+        <h2 class="contact-info-title">Want to ride with us?</h2>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#CC2200" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <div class="contact-item-label">Clubhouse</div>
+            <div class="contact-item-value">666 Iron Road, Los Santos, SA</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#CC2200" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div>
+            <div class="contact-item-label">Phone</div>
+            <div class="contact-item-value">(555) 666-0001</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#CC2200" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="contact-item-label">Email</div>
+            <div class="contact-item-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="16647f7273566577627778653b79647273643b7b753875797b">[email&#160;protected]</a></div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#CC2200" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="contact-item-label">Clubhouse Hours</div>
+            <div class="contact-item-value">Every night after dark.<br>Brothers always welcome.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="contact-form-label">Your Name</div>
+        <input type="text" class="contact-form-input" placeholder="Full name">
+        <div class="contact-form-label">Phone / Contact</div>
+        <input type="text" class="contact-form-input" placeholder="How to reach you">
+        <div class="contact-form-label">What Bike Do You Ride?</div>
+        <input type="text" class="contact-form-input" placeholder="Make & model">
+        <div class="contact-form-label">Why Do You Want to Prospect?</div>
+        <textarea class="contact-form-input contact-form-textarea" placeholder="Tell us your story..."></textarea>
+        <button class="contact-submit">Send Application →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo">
+      <svg viewBox="0 0 100 100"><path fill="#CC2200" d="M50 10 Q60 30 55 45 Q65 35 60 55 Q70 45 65 65 Q60 80 50 90 Q40 80 35 65 Q30 45 40 55 Q35 35 45 45 Q40 30 50 10"/></svg>
+      Satan's Order MC
+    </div>
+    <div class="footer-copy">© 2024 · Satan's Order Motorcycle Club · Los Santos Chapter</div>
+    <div class="footer-rights">All Rights Reserved · 1%</div>
+  </footer>
+
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// === ANIMATED BACKGROUND (Smoke + Embers) ===
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let smokeParticles = [];
+let embers = [];
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+class Smoke {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = canvas.height + Math.random() * 100;
+    this.size = Math.random() * 80 + 40;
+    this.speedY = -(Math.random() * 0.4 + 0.15);
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.opacity = Math.random() * 0.12 + 0.04;
+    this.fade = Math.random() * 0.0003 + 0.0001;
+    const c = ['139,0,0','204,34,0','20,20,20','10,10,10'];
+    this.color = c[Math.floor(Math.random()*c.length)];
+  }
+  update() {
+    this.y += this.speedY;
+    this.x += this.speedX;
+    this.opacity -= this.fade;
+    this.size += 0.08;
+    if(this.opacity<=0||this.y<-100) this.reset();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = 'rgba('+this.color+',1)';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+class Ember {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = canvas.height + 10;
+    this.size = Math.random() * 2 + 1;
+    this.speedY = -(Math.random() * 1.2 + 0.4);
+    this.speedX = (Math.random() - 0.5) * 0.8;
+    this.opacity = Math.random() * 0.7 + 0.3;
+    this.life = Math.random() * 180 + 80;
+    this.age = 0;
+    this.color = Math.random() > 0.5 ? '255,100,0' : '204,34,0';
+  }
+  update() {
+    this.y += this.speedY;
+    this.x += this.speedX + Math.sin(this.age * 0.05) * 0.3;
+    this.age++;
+    this.opacity = Math.max(0, 1 - this.age / this.life);
+    if(this.age >= this.life) this.reset();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = 'rgba('+this.color+','+this.opacity+')';
+    ctx.shadowColor = 'rgba(255,100,0,0.5)';
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+for(let i=0;i<25;i++) { const s=new Smoke(); s.y=Math.random()*canvas.height; smokeParticles.push(s); }
+for(let i=0;i<40;i++) { const e=new Ember(); e.y=Math.random()*canvas.height; e.age=Math.random()*80; embers.push(e); }
+
+function animate() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  smokeParticles.forEach(p=>{p.update();p.draw()});
+  embers.forEach(e=>{e.update();e.draw()});
+  requestAnimationFrame(animate);
+}
+animate();
+
+// === OBSERVERS ===
+const obs = new IntersectionObserver(e => {
+  e.forEach(en => { if(en.isIntersecting) en.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('[data-anim]').forEach(el => obs.observe(el));
+
+// === PRELOADER ===
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('preloader').classList.add('hidden'), 1200);
+});
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
